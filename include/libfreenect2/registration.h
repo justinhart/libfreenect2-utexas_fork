@@ -29,6 +29,8 @@
 #ifndef REGISTRATION_H_
 #define REGISTRATION_H_
 
+#include "pointxyz.h"
+
 #include <string>
 #include <libfreenect2/config.h>
 #include <libfreenect2/libfreenect2.hpp>
@@ -113,6 +115,7 @@ public:
    * @param[out] z Z coordinate of the 3-D point (meter).
    */
   void getPointXYZ (const Frame* undistorted, int r, int c, float& x, float& y, float& z) const;
+  void getPointsXYZ (const float* undistorted_data, PointXYZ *pts, int rows, int cols) const;
 
 private:
   RegistrationImpl *impl_;

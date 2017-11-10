@@ -53,6 +53,7 @@ public:
   void undistortDepth(const Frame *depth, Frame *undistorted) const;
   void getPointXYZRGB (const Frame* undistorted, const Frame* registered, int r, int c, float& x, float& y, float& z, float& rgb) const;
   void getPointXYZ (const Frame* undistorted, int r, int c, float& x, float& y, float& z) const;
+  void getPointsXYZ (const float* undistorted_data, PointXYZ *pts, int rows, int cols) const;
   void distort(int mx, int my, float& dx, float& dy) const;
   void depth_to_color(float mx, float my, float& rx, float& ry) const;
 
@@ -357,6 +358,40 @@ void RegistrationImpl::getPointXYZ (const Frame *undistorted, int r, int c, floa
     y = (r + 0.5 - cy) * fy * depth_val;
     z = depth_val;
   }
+}
+
+void Registration::getPointsXYZ (const float* undistorted_data
+	, PointXYZ *pts, int rows, int cols) const {
+	impl_->getPointsXYZ(undistorted_data, pts, rows, cols);
+}
+
+void RegistrationImpl::getPointsXYZ (
+	const float* undistorted_data
+	, PointXYZ *pts, int rows, int cols) const {
+	const float cx(depth.cx), cy(depth.cy);
+	const float fx(1/depth.fx), fy(1/depth.fy);
+
+	//float* undistorted_data = (float *)undistorted->data;
+
+	int ctr = 0;
+	for(int r = 0; r < rows; r++) {
+		for(int c = 0; c < cols; c++) {
+			//scaling factor, so that value of 1 is one meter.
+			const float depth_val = undistorted_data[512*r+c]/1000.0f;
+
+			if (isnan(depth_val) || depth_val <= 0.001)	{
+				//depth value is not valid
+				pts[ctr].X = pts[ctr].Y = pts[ctr].Z =
+					std::numeric_limits<float>::quiet_NaN();
+			} else {
+				pts[ctr].X = ((float)c + 0.5 - cx) * fx * depth_val;
+				pts[ctr].Y = ((float)r + 0.5 - cy) * fy * depth_val;
+				pts[ctr].Z = depth_val;
+			}
+
+			ctr++;
+		}
+	}
 }
 
 Registration::Registration(Freenect2Device::IrCameraParams depth_p, Freenect2Device::ColorCameraParams rgb_p):

@@ -240,25 +240,38 @@ ELSE()
   FIND_PACKAGE(TurboJPEG REQUIRED)
 ENDIF()
 
-SET(HAVE_TurboJPEG no)
-IF(TurboJPEG_FOUND)
-  SET(LIBFREENECT2_WITH_TURBOJPEG_SUPPORT 1)
-  SET(HAVE_TurboJPEG yes)
+SET(LIBFREENECT2_WITH_TURBOJPEG_SUPPORT 1)
+SET(HAVE_TurboJPEG yes)
+INCLUDE_DIRECTORIES("../libjpeg-turbo")
+LIST(APPEND SOURCES
+	src/turbo_jpeg_rgb_packet_processor.cpp
+)
 
-  INCLUDE_DIRECTORIES(${TurboJPEG_INCLUDE_DIRS})
+link_directories("../libjpeg-turbo/.libs")
 
-  LIST(APPEND SOURCES
-    src/turbo_jpeg_rgb_packet_processor.cpp
-  )
+LIST(APPEND LIBRARIES
+	turbojpeg
+)
 
-  LIST(APPEND LIBRARIES
-    ${TurboJPEG_LIBRARIES}
-  )
-
-  LIST(APPEND LIBFREENECT2_DLLS
-   ${TurboJPEG_DLL}
-  )
-ENDIF()
+#SET(HAVE_TurboJPEG no)
+#IF(TurboJPEG_FOUND)
+#  SET(LIBFREENECT2_WITH_TURBOJPEG_SUPPORT 1)
+#  SET(HAVE_TurboJPEG yes)
+#
+#  INCLUDE_DIRECTORIES(${TurboJPEG_INCLUDE_DIRS})
+#
+#  LIST(APPEND SOURCES
+#    src/turbo_jpeg_rgb_packet_processor.cpp
+#  )
+#
+#  LIST(APPEND LIBRARIES
+#    ${TurboJPEG_LIBRARIES}
+#  )
+#
+#  LIST(APPEND LIBFREENECT2_DLLS
+#   ${TurboJPEG_DLL}
+#  )
+#ENDIF()
 
 SET(HAVE_OpenGL disabled)
 IF(ENABLE_OPENGL)
